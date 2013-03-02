@@ -748,7 +748,7 @@ Returns Coords of Skill's Row and Column (Used for ?Parent)
 .. note::
 
     by DannyRS
-    Last Modified: Feb. 28th, 2013 by DannyRS
+    Last Modified: March, 2nd, 2013 by DannyRS
 
 Example:
 
@@ -761,8 +761,8 @@ var
   SkillBox: TBox;
 begin
   SkillBox := SkillBoxCoords(Row, Column);
-  ResPoint.X := (Round(((SkillBox.X2-SkillBox.X1)/2)+SkillBox.X1));
-  ResPoint.Y := (Round(((SkillBox.Y2-SkillBox.Y1)/2)+SkillBox.Y1));
+  ResPoint.X := Round(((SkillBox.X2-SkillBox.X1)/2)+SkillBox.X1);
+  ResPoint.Y := Round(((SkillBox.Y2-SkillBox.Y1)/2)+SkillBox.Y1);
   Result := ResPoint;
 end;
 
@@ -773,87 +773,59 @@ SkillToCoords
 
 .. code-block:: pascal
 
-    function SkillToCoords(Skill: Variant): TPoint;
+    function SkillToCoords(Skill: String): TPoint;
 
-Turns skill string into TPoint.
-If Scroll returns true then you must scroll down.
+Turns a skill String into TPoint position.
 
 .. note::
 
-    by Masquerader et. al.
-    Last Modified: Feb. 28th, 2013 by DannyRS
+    by DannyRS
+    Last Modified: March, 2nd, 2013 by DannyRS
 
 Example:
 
 .. code-block:: pascal
 
 *)
-function SkillToCoords(Skill: Variant): TPoint;
+function SkillToCoords(Skill: String): TPoint;
 var
-  SkillArr: TStringArray;
-  skNo: Integer;
-  SkillS: string;
   SkillPT : TPoint; //Row/Column
 begin
   if (not LoggedIn) then exit;
 
-  if VariantIsInteger(Skill) then
-    skNo := Skill
-  else
-  begin;
-    SkillS := Lowercase(Skill);
-    case Lowercase(SkillS) of
-      'hp', 'constitution': SkillS := 'hitpoints';
-      'ranged': SkillS := 'range';
-      'hunter': SkillS := 'hunting';
-      'dung'  : skillS := 'dungeoneering';
-    end;
-
-    SkillArr := ['attack', 'defence', 'strength', 'hitpoints', 'range',
-                 'prayer', 'magic', 'cooking', 'woodcutting', 'fletching',
-                 'fishing', 'firemaking', 'crafting', 'smithing', 'mining',
-                 'herblore',  'agility', 'thieving', 'slayer', 'farming',
-                 'runecrafting', 'hunting', 'construction', 'summoning',
-                 'dungeoneering'];
-    if (not InStrArrEx(SkillS, SkillArr, skNo)) then
+  case Skill of
+    'attack'       : SkillPT := Point(1,1);
+    'strength'     : SkillPT := Point(1,2);
+    'defence'      : SkillPT := Point(1,3);
+    'ranged'       : SkillPT := Point(1,4);
+    'prayer'       : SkillPT := Point(1,5);
+    'magic'        : SkillPT := Point(1,6);
+    'runecrafting' : SkillPT := Point(1,7);
+    'construction' : SkillPT := Point(1,8);
+    'hitpoints'    : SkillPT := Point(2,1);
+    'agility'      : SkillPT := Point(2,2);
+    'herblore'     : SkillPT := Point(2,3);
+    'thieving'     : SkillPT := Point(2,4);
+    'crafting'     : SkillPT := Point(2,5);
+    'fletching'    : SkillPT := Point(2,6);
+    'slayer'       : SkillPT := Point(2,7);
+    'hunter'       : SkillPT := Point(2,8);
+    'mining'       : SkillPT := Point(3,1);
+    'smithing'     : SkillPT := Point(3,2);
+    'fishing'      : SkillPT := Point(3,3);
+    'cooking'      : SkillPT := Point(3,4);
+    'firemaking'   : SkillPT := Point(3,5);
+    'woodcutting'  : SkillPT := Point(3,6);
+    'farming'      : SkillPT := Point(3,7);
+    else
     begin
       srl_Warn('SkillToCoords',
-               'Invalid Skill Name/Number: ''' + string(Skill) + '''',
+               'Invalid Skill Name : ''' + Skill + '''',
                warn_AllVersions);
       Exit;
     end;
   end;
-  case skNo of
-    Skill_Attack        : SkillPT := Point(1,1);
-    Skill_Strength      : SkillPT := Point(1,2);
-    Skill_Defence       : SkillPT := Point(1,3);
-    Skill_Range         : SkillPT := Point(1,4);
-    Skill_Prayer        : SkillPT := Point(1,5);
-    Skill_Magic         : SkillPT := Point(1,6);
-    Skill_RuneCrafting  : SkillPT := Point(1,7);
-    Skill_Construction  : SkillPT := Point(1,8);
-    Skill_Hitpoints     : SkillPT := Point(2,1);
-    Skill_Agility       : SkillPT := Point(2,2);
-    Skill_Herblore      : SkillPT := Point(2,3);
-    Skill_Thieving      : SkillPT := Point(2,4);
-    Skill_Crafting      : SkillPT := Point(2,5);
-    Skill_Fletching     : SkillPT := Point(2,6);
-    Skill_Slayer        : SkillPT := Point(2,7);
-    Skill_Hunter        : SkillPT := Point(2,8);
-    Skill_Mining        : SkillPT := Point(3,1);
-    Skill_Smithing      : SkillPT := Point(3,2);
-    Skill_Fishing       : SkillPT := Point(3,3);
-    Skill_Cooking       : SkillPT := Point(3,4);
-    Skill_FireMaking    : SkillPT := Point(3,5);
-    Skill_WoodCutting   : SkillPT := Point(3,6);
-    Skill_Farming       : SkillPT := Point(3,7);
-  else
-    begin
-      srl_Warn('SkillToCoords', 'Invalid Skill Number: ''' + inttostr(skNo) + '''', warn_AllVersions);
-      exit;
-    end;
-  end;
-  Result := SkillCoords(SkillPT.y,SkillPT.x);
+  Result := SkillCoords(SkillPT.X,SkillPT.Y);
 end;
 
 (*
@@ -863,56 +835,27 @@ SkillToPoint
 
 .. code-block:: pascal
 
-    function SkillToPoint(Skill: Variant): TPoint;
+    function SkillToPoint(Skill: Integer): TPoint;
 
-Turns skill string into TPoint of the Skill X - Y.
+Turns global skill integer into TPoint position.
 
 .. note::
 
-    by DannyRS, based off original by Masquerader et. al.
-    Last Modified: Feb. 28th, 2013 by DannyRS
+    by DannyRS
+    Last Modified: March, 2nd, 2013 by DannyRS
 
 Example:
 
 .. code-block:: pascal
 
 *)
-function SkillToPoint(Skill: Variant): TPoint;
+function SkillToPoint(Skill: Integer): TPoint;
 var
-  SkillArr: TStringArray;
-  skNo: Integer;
-  SkillS: string;
   SkillPT : TPoint; //Row/Column
 begin
   if (not LoggedIn) then exit;
 
-  if VariantIsInteger(Skill) then
-    skNo := Skill
-  else
-  begin;
-    SkillS := Lowercase(Skill);
-    case Lowercase(SkillS) of
-      'hp', 'constitution': SkillS := 'hitpoints';
-      'ranged': SkillS := 'range';
-      'hunter': SkillS := 'hunting';
-      'dung'  : skillS := 'dungeoneering';
-    end;
-
-    SkillArr := ['attack', 'defence', 'strength', 'hitpoints', 'range',
-                 'prayer', 'magic', 'cooking', 'woodcutting', 'fletching',
-                 'fishing', 'firemaking', 'crafting', 'smithing', 'mining',
-                 'herblore',  'agility', 'thieving', 'slayer', 'farming',
-                 'runecrafting', 'hunting', 'construction', 'summoning',
-                 'dungeoneering'];
-    if (not InStrArrEx(SkillS, SkillArr, skNo)) then
-    begin
-      srl_Warn('SkillToCoords',
-               'Invalid Skill Name/Number: ''' + string(Skill) + '''',
-               warn_AllVersions);
-      Exit;
-    end;
-  end;
-  case skNo of
+  case Skill of
     Skill_Attack        : SkillPT := Point(1,1);
     Skill_Strength      : SkillPT := Point(1,2);
     Skill_Defence       : SkillPT := Point(1,3);
@@ -936,13 +879,13 @@ begin
     Skill_FireMaking    : SkillPT := Point(3,5);
     Skill_WoodCutting   : SkillPT := Point(3,6);
     Skill_Farming       : SkillPT := Point(3,7);
-  else
+    else
     begin
-      srl_Warn('SkillToCoords', 'Invalid Skill Number: ''' + inttostr(skNo) + '''', warn_AllVersions);
+      srl_Warn('SkillToCoords', 'Invalid Skill Number: ''' + inttostr(Skill) + '''', warn_AllVersions);
       exit;
     end;
   end;
-  Result := SkillPT;
+  Result := SkillCoords(SkillPT.X,SkillPT.Y);
 end;
 
 (*
@@ -1050,7 +993,7 @@ var
 begin
   Result := False;
   if (SwapGTabBack) then OrigTab := GetCurrentTab;
-  if (GameTab(tab_Options)) then
+  if (FTab(tab_Options)) then
   begin
     CCount := CountColorTolerance(2369440, 626, 412, 657, 413, 20);
     Result := (CCount>1);
@@ -1749,7 +1692,7 @@ Example:
 function GetRunEnergy: Integer;
 begin
   Result := -1;
-  if not GameTab(tab_Options) then Exit;
+  if not FTab(tab_Options) then Exit;
   Result := StrToIntDef(ExtractFromStr(GetTextAtExWrap(625, 434, 658, 446,
                       0, 5, 1, 39167, 0, 'UpChars07'), Numbers), - 1);
 end;
@@ -1787,47 +1730,50 @@ begin
   end;
 end;
 
-Const
-  BrightnessColor = 9605778;
-  ScrollColor = 2106924;
-  ArrowOptions = 16645886;
-  BlueText = 14790912;
-
 (*
 SetBrightness
 ~~~~~~~~~~~~~
 
 .. code-block:: pascal
 
-    procedure SetBrightness(Brightness:Integer);
+    function SetBrightness(Brightness:Integer): Boolean;
 
 sets the Brightness Graphics Option if LoggedIn
+returns true if changed.
 
 .. note::
 
     by DannyRS
-    Last Modified: Feb. 28th, 2013 by DannyRS
+    Last Modified: March, 2nd, 2013 by DannyRS
 
 Example:
 
 .. code-block:: pascal
 
 *)
-procedure SetBrightness(Brightness:Integer);
+function SetBrightness(Brightness:Integer): Boolean;
 var
+  PA: TPointArray;
   P: TPoint;
 begin
+  Result:=False;
   if (not loggedin) then Exit;
 
   if (not GameTab(tab_Options)) then exit;
 
-  if (not InRange(Brightness, 1, 4)) then
-    srl_Warn('GameTab ', 'SetBrightness must be between 1 and 4', warn_AllVersions)
+  if (not InRange(Brightness, 0, 4)) then
+    srl_Warn('GameTab ', 'SetBrightness must be between 0 and 4', warn_AllVersions)
   else
   begin
-    P := Point(610 + ((Brightness - 1) * 31), 226);
-    if (not (GetColor(P.x, P.y) = 16777215)) then
-      MouseBox(P.x, P.y, P.x+4, P.y+4, mouse_left);
+    if (Brightness=0) then Exit;
+    SetLength(PA,4);
+    PA:= [Point(610,226),Point(641,226),Point(672,226),Point(706,226)];
+    P := PA[(Brightness - 1)];
+    if (not (GetColor(P.X, P.Y) = 16777215)) then
+    begin
+      MouseBox(P.X, P.Y, P.X+4, P.Y+4, mouse_left);
+      Result:=True;
+    end;
   end;
 end;
 
@@ -1837,35 +1783,44 @@ SetVolumeMusic
 
 .. code-block:: pascal
 
-    procedure SetVolumeMusic(Volume:Integer);
+    function SetVolumeMusic(Volume:Integer): Boolean;
 
 sets the SoundEffects Volume Option if LoggedIn
+returns true if changed.
 
 .. note::
 
     by DannyRS
-    Last Modified: Feb. 28th, 2013 by DannyRS
+    Last Modified: March, 2nd, 2013 by DannyRS
 
 Example:
 
 .. code-block:: pascal
 
 *)
-procedure SetVolumeMusic(Volume:Integer);
+function SetVolumeMusic(Volume:Integer): Boolean;
 var
+  PA: TPointArray;
   P: TPoint;
 begin
+  Result:=False;
   if (not loggedin) then Exit;
 
   if (not GameTab(tab_Options)) then exit;
 
-  if (not InRange(Volume, 1, 5)) then
-    srl_Warn('GameTab ', 'SetVolumeMusic must be between 1 and 5', warn_AllVersions)
+  if (not InRange(Volume, 0, 5)) then
+    srl_Warn('GameTab ', 'SetVolumeMusic must be between 0 and 5', warn_AllVersions)
   else
   begin
-    P := Point(607 + ((Volume - 1) * 24), 263);
-    if (not (GetColor(P.x, P.y) = 16777215)) then
-      MouseBox(P.x, P.y, P.x+4, P.y+4, mouse_left);
+    if (Volume=0) then Exit;
+    SetLength(PA,5);
+    PA:= [Point(607,263),Point(631,263),Point(658,263),Point(684,263),Point(709,263)];
+    P := PA[(Volume - 1)];
+    if (not (GetColor(P.X, P.Y) = 16777215)) then
+    begin
+      MouseBox(P.X, P.Y, P.X+4, P.Y+4, mouse_left);
+      Result:=True;
+    end;
   end;
 end;
 
@@ -1875,35 +1830,44 @@ SetVolumeSoundEffect
 
 .. code-block:: pascal
 
-    procedure SetVolumeSoundEffect(Volume:Integer);
+    function SetVolumeSoundEffect(Volume:Integer): Boolean;
 
 sets the SoundEffects Volume Option if LoggedIn
+returns true if changed.
 
 .. note::
 
     by DannyRS
-    Last Modified: Feb. 28th, 2013 by DannyRS
+    Last Modified: March, 2nd, 2013 by DannyRS
 
 Example:
 
 .. code-block:: pascal
 
 *)
-procedure SetVolumeSoundEffect(Volume:Integer);
+function SetVolumeSoundEffect(Volume:Integer): Boolean;
 var
+  PA: TPointArray;
   P: TPoint;
 begin
+  Result:=False;
   if (not loggedin) then Exit;
 
   if (not GameTab(tab_Options)) then exit;
 
-  if (not InRange(Volume, 1, 5)) then
-    srl_Warn('GameTab ', 'SetVolumeSoundEffect must be between 1 and 5', warn_AllVersions)
+  if (not InRange(Volume, 0, 5)) then
+    srl_Warn('GameTab ', 'SetVolumeSoundEffect must be between 0 and 5', warn_AllVersions)
   else
   begin
-    P := Point(607 + ((Volume - 1) * 24), 299);
-    if (not (GetColor(P.x, P.y) = 16777215)) then
-      MouseBox(P.x, P.y, P.x+4, P.y+4, mouse_left);
+    if (Volume=0) then Exit;
+    SetLength(PA,5);
+    PA:= [Point(607,299),Point(631,299),Point(658,299),Point(684,299),Point(709,299)];
+    P := PA[(Volume - 1)];
+    if (not (GetColor(P.X, P.Y) = 16777215)) then
+    begin
+      MouseBox(P.X, P.Y, P.X+4, P.Y+4, mouse_left);
+      Result:=True;
+    end;
   end;
 end;
 
@@ -1913,35 +1877,44 @@ SetVolumeAreaSoundEffect
 
 .. code-block:: pascal
 
-    procedure SetVolumeAreaSoundEffect(Volume:Integer);
+    function SetVolumeAreaSoundEffect(Volume:Integer): Boolean;
 
 sets the AreaSoundEffect Volume Option if LoggedIn
+returns true if changed.
 
 .. note::
 
     by DannyRS
-    Last Modified: Feb. 28th, 2013 by DannyRS
+    Last Modified: March, 2nd, 2013 by DannyRS
 
 Example:
 
 .. code-block:: pascal
 
 *)
-procedure SetVolumeAreaSoundEffect(Volume:Integer);
+function SetVolumeAreaSoundEffect(Volume:Integer): Boolean;
 var
+  PA: TPointArray;
   P: TPoint;
 begin
+  Result:=False;
   if (not loggedin) then Exit;
 
   if (not GameTab(tab_Options)) then exit;
 
-  if (not InRange(Volume, 1, 5)) then
-    srl_Warn('GameTab ', 'SetAreaVolumeSoundEffect must be between 1 and 5', warn_AllVersions)
+  if (not InRange(Volume, 0, 5)) then
+    srl_Warn('GameTab ', 'SetVolumeAreaSoundEffect must be between 0 and 5', warn_AllVersions)
   else
   begin
-    P := Point(607 + ((Volume - 1) * 24), 336);
-    if (not (GetColor(P.x, P.y) = 16777215)) then
-      MouseBox(P.x, P.y, P.x+4, P.y+4, mouse_left);
+    if (Volume=0) then Exit;
+    SetLength(PA,5);
+    PA:= [Point(607,336),Point(631,336),Point(658,336),Point(684,336),Point(709,336)];
+    P := PA[(Volume - 1)];
+    if (not (GetColor(P.X, P.Y) = 16777215)) then
+    begin
+      MouseBox(P.X, P.Y, P.X+4, P.Y+4, mouse_left);
+      Result:=True;
+    end;
   end;
 end;
 
@@ -1951,24 +1924,26 @@ ToggleNumberOfMouseButtons
 
 .. code-block:: pascal
 
-    procedure ToggleNumberOfMouseButtons(ToggleOn:Boolean);
+    function ToggleNumberOfMouseButtons(ToggleOn:Boolean): Boolean;
 
 Toggles NumberOfMouseButtons Option if LoggedIn
+returns true if changed.
 
 .. note::
 
     by DannyRS
-    Last Modified: Feb. 28th, 2013 by DannyRS
+    Last Modified: March, 2nd, 2013 by DannyRS
 
 Example:
 
 .. code-block:: pascal
 
 *)
-procedure ToggleNumberOfMouseButtons(ToggleOn:Boolean);
+function ToggleNumberOfMouseButtons(ToggleOn:Boolean): Boolean;
 var
   CCount: Integer;
 begin
+  Result:=False;
   if (not loggedin) then Exit;
 
   if (not GameTab(tab_Options)) then exit;
@@ -1978,12 +1953,18 @@ begin
   if (ToggleOn) then
   begin
     if (not (CCount > 1)) then
+    begin
       MouseBox(570, 361, 601, 392, mouse_left);
+      Result:=True;
+    end;
   end
   else
   begin
     if (CCount > 1) then
+    begin
       MouseBox(570, 361, 601, 392, mouse_left);
+      Result:=True;
+    end;
   end;
 end;
 
@@ -1993,9 +1974,10 @@ ToggleChatEffects
 
 .. code-block:: pascal
 
-    procedure ToggleChatEffects(ToggleOn:Boolean);
+    function ToggleChatEffects(ToggleOn:Boolean): Boolean;
 
 Toggles ChatEffects Option if LoggedIn
+returns true if changed.
 
 .. note::
 
@@ -2007,10 +1989,11 @@ Example:
 .. code-block:: pascal
 
 *)
-procedure ToggleChatEffects(ToggleOn:Boolean);
+function ToggleChatEffects(ToggleOn:Boolean): Boolean;
 var
   CCount: Integer;
 begin
+  Result:=False;
   if (not loggedin) then Exit;
 
   if (not GameTab(tab_Options)) then exit;
@@ -2020,12 +2003,18 @@ begin
   if (ToggleOn) then
   begin
     if (not (CCount > 1)) then
+    begin
       MouseBox(626, 361, 657, 392, mouse_left);
+      Result:=True;
+    end;
   end
   else
   begin
     if (CCount > 1) then
+    begin
       MouseBox(626, 361, 657, 392, mouse_left);
+      Result:=True;
+    end;
   end;
 end;
 
@@ -2035,9 +2024,10 @@ ToggleSplitPrivateChat
 
 .. code-block:: pascal
 
-    procedure ToggleSplitPrivateChat(ToggleOn:Boolean);
+    function ToggleSplitPrivateChat(ToggleOn:Boolean): Boolean;
 
 Toggles SplitPrivateChat Option if LoggedIn
+returns true if changed.
 
 .. note::
 
@@ -2049,10 +2039,11 @@ Example:
 .. code-block:: pascal
 
 *)
-procedure ToggleSplitPrivateChat(ToggleOn:Boolean);
+function ToggleSplitPrivateChat(ToggleOn:Boolean): Boolean;
 var
   CCount: Integer;
 begin
+  Result:=False;
   if (not loggedin) then Exit;
 
   if (not GameTab(tab_Options)) then exit;
@@ -2062,12 +2053,18 @@ begin
   if (ToggleOn) then
   begin
     if (not (CCount > 1)) then
+    begin
       MouseBox(682, 361, 713, 392, mouse_left);
+      Result:=True;
+    end;
   end
   else
   begin
     if (CCount > 1) then
+    begin
       MouseBox(682, 361, 713, 392, mouse_left);
+      Result:=True;
+    end;
   end;
 end;
 
@@ -2077,9 +2074,10 @@ ToggleAcceptAid
 
 .. code-block:: pascal
 
-    procedure ToggleAcceptAid(ToggleOn:Boolean);
+    function ToggleAcceptAid(ToggleOn:Boolean): Boolean;
 
 Toggles AcceptAid Option if LoggedIn
+returns true if changed.
 
 .. note::
 
@@ -2091,10 +2089,11 @@ Example:
 .. code-block:: pascal
 
 *)
-procedure ToggleAcceptAid(ToggleOn:Boolean);
+function ToggleAcceptAid(ToggleOn:Boolean): Boolean;
 var
   CCount: Integer;
 begin
+  Result:=False;
   if (not loggedin) then Exit;
 
   if (not GameTab(tab_Options)) then exit;
@@ -2104,12 +2103,18 @@ begin
   if (ToggleOn) then
   begin
     if (not (CCount > 1)) then
+    begin
       MouseBox(570, 415, 601, 446, mouse_left);
+      Result:=True;
+    end;
   end
   else
   begin
     if (CCount > 1) then
-      MouseBox(682, 361, 713, 392, mouse_left);
+    begin
+      MouseBox(570, 415, 601, 446, mouse_left);
+      Result:=True;
+    end;
   end;
 end;
 
@@ -2126,10 +2131,10 @@ Use: Enter the desired Setting for the desired Option.
 
 
 Parameter    Option                     Setting
-Bright       Screen Brightness          Level: 1-4
-MVol         Music Volume               Level: 1-4
-SEVol        Sound Effect Volume        Level: 1-4
-ASEVol       Area Sound Effect Volume   Level: 1-4
+Bright       Screen Brightness          Level: 1-4 (0 no change)
+MVol         Music Volume               Level: 1-4 (0 no change)
+SEVol        Sound Effect Volume        Level: 1-4 (0 no change)
+ASEVol       Area Sound Effect Volume   Level: 1-4 (0 no change)
 TNMB         Toggle MouseButton Num     Off / On
 TCE          Toggle Chat Effects        Off / On
 TSPC         Toggle SPrivate Chat       Off / On
@@ -2156,25 +2161,14 @@ Example:
 procedure SetGraphics(Bright,MVol,SEVol,ASEVol: Integer; TNMB,TCE,TSPC,TAA: Boolean);
 begin
   if (not LoggedIn) then exit;
-  CloseWindow;
-
-  SetBrightness(Bright);
-  Wait(90 + Random(200));
-  SetVolumeMusic(MVol);
-  Wait(90 + Random(200));
-  SetVolumeSoundEffect(SEVol);
-  Wait(90 + Random(200));
-  SetVolumeAreaSoundEffect(ASEVol);
-  Wait(90 + Random(200));
-  ToggleNumberOfMouseButtons(TNMB);
-  Wait(90 + Random(200));
-  ToggleChatEffects(TCE);
-  Wait(90 + Random(200));
-  ToggleSplitPrivateChat(TSPC);
-  Wait(90 + Random(200));
-  ToggleAcceptAid(TAA);
-  Wait(90 + Random(200));
-  CloseWindow;
+  if SetBrightness(Bright) then Wait(90 + Random(200));
+  if SetVolumeMusic(MVol) then Wait(90 + Random(200));
+  if SetVolumeSoundEffect(SEVol) then Wait(90 + Random(200));
+  if SetVolumeAreaSoundEffect(ASEVol) then Wait(90 + Random(200));
+  if ToggleNumberOfMouseButtons(TNMB) then Wait(90 + Random(200));
+  if ToggleChatEffects(TCE) then Wait(90 + Random(200));
+  if ToggleSplitPrivateChat(TSPC) then Wait(90 + Random(200));
+  if ToggleAcceptAid(TAA) then Wait(90 + Random(200));
 end;
 
 (*
@@ -2199,7 +2193,7 @@ Example:
 *)
 procedure FixGraphics;
 begin
-  SetGraphics(4,1,1,1,True,True,True,False);
+  SetGraphics(4,0,0,0,True,True,True,False);
 end;
 
 (*
