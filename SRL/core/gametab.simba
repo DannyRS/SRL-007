@@ -269,7 +269,7 @@ FTab
     function FTab(Tab: Integer): Boolean;
 
 Instead of clicking the Tab this uses the F keys to instantly switch to the tab.
-Works with all tabs except Inv and Logout (F1-F12).
+Works with all tabs except Logout (F1-F12, escape for inv).
 
 .. note::
 
@@ -281,7 +281,7 @@ Example:
 .. code-block:: pascal
 
 *)
-function FTab(Tab: integer): boolean;
+function FTab(Tab: Integer): boolean;
 var
   T, F: integer;
 begin
@@ -292,8 +292,8 @@ begin
     Exit;
   end;
 
-{ Inventory and LogOut Don't have a key}
-  if (Tab=tab_Inv) or (Tab=tab_Logout) then
+{ LogOut Does not have a key AFAIK }
+  if (Tab=tab_Logout) then
   begin
     SRL_Warn('GameTab', 'FTab ' + IntToStr(Tab) + ' is not a valid tab number.', warn_AllVersions);
     Exit;
@@ -306,10 +306,11 @@ begin
   end;
 
   case Tab of
-{ Inventory and LogOut Don't have a key}
+{ LogOut Does not have a key AFAIK }
     tab_Combat : F:=1;
     tab_Stats  : F:=2;
     tab_Quest  : F:=3;
+    tab_Inv    : F:=-84;
     tab_Equip  : F:=4;
     tab_Prayer : F:=5;
     tab_Magic  : F:=6;
@@ -328,7 +329,7 @@ begin
     Result := GetCurrentTab = Tab;
   until Result or (GetSystemTime > T);
 
-  if not Result then
+  if (not Result) then
     Result:= GameTab(Tab); //failsafe
 end;
 
