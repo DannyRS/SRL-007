@@ -11,8 +11,11 @@ then uses TPA Scanning to find and click the required food.
 
 *)
 
+const
+  _SL_Debug = False;
+
 var
-  _SL_TimeOut: integer;
+  _SL_TimeOut: Integer;
 
 function SL_StopSearch: boolean;
 begin
@@ -108,16 +111,104 @@ end;
 
 (**
  * Author: DannyRS
+ * Last modified 21/05/2013 By DannyRS
+ * Description: Finds square and triangle sandwiches
+ *)
+function SL_FindSandwichBySize(PickLargest: Boolean): Integer;
+var
+  SB: TBox;
+  SWTPA: TPointArray;
+  SBoxes, CNums: TIntegerArray;
+  i, j, t: Integer;
+begin
+
+  SBoxes := [-1, -1]
+  CNums  := [-1, -1]
+  j := 0;
+
+  SetColorToleranceSpeed(2);
+  SetToleranceSpeed2Modifiers(0.02, 0.21);
+
+  repeat
+
+    for i:=0 to 6 do
+    begin
+      SB := SL_SandwichSearchBox(i);
+      FindColorsTolerance(SWTPA, 1345203, SB.X1, SB.Y1, SB.X2, SB.Y2, 13);
+
+      if (Length(SWTPA) < 10) or (j > 1) then
+        Continue;
+
+      if (_SL_Debug) then
+        SL_Message('[Size Locator] Possible sandwich located at ' + IntToStr(i) +
+                   ': ' + IntToStr(Length(SWTPA)));
+
+      SBoxes[j] := i;
+
+      j := j + 1;
+    end;
+
+  until ((SBoxes[0] > -1) and (SBoxes[1] > -1)) or (SL_StopSearch);
+
+  SetColorToleranceSpeed(2);
+  SetToleranceSpeed2Modifiers(0.03, 0.33);
+
+  t := GetSystemTime;
+
+  repeat
+
+    SB := SL_SandwichSearchBox(SBoxes[0]);
+    FindColorsTolerance(SWTPA, 5078928, SB.X1, SB.Y1, SB.X2, SB.Y2, 13);
+
+    if (CNums[0] < Length(SWTPA)) then
+      CNums[0] := Length(SWTPA);
+
+    SB := SL_SandwichSearchBox(SBoxes[1]);
+    FindColorsTolerance(SWTPA, 5078928, SB.X1, SB.Y1, SB.X2, SB.Y2, 13);
+
+    if (CNums[1] < Length(SWTPA)) then
+      CNums[1] := Length(SWTPA);
+
+    if (_SL_Debug) then
+        SL_Message('[Size Locator] Sizes : ' +
+                    IntToStr(CNums[0]) + ' : ' + IntToStr(CNums[1]));
+
+    Wait(300);
+
+  until ((GetSystemTime - t) > 5000) or (SL_StopSearch);
+
+  if (SL_StopSearch) then
+    Exit;
+
+  if (PickLargest) then
+  begin
+    if (CNums[0] > CNums[1]) then
+      Result := SBoxes[0]
+    else
+      Result := SBoxes[1]
+  end
+  else
+  begin
+    if (CNums[0] > CNums[1]) then
+      Result := SBoxes[1]
+    else
+      Result := SBoxes[0]
+  end;
+
+end;
+
+(**
+ * Author: DannyRS
  * Last modified 15/03/2013 By DannyRS
  * Description: Finds the correct box number to click
  *)
-function SL_FindSandwichBoxNumber: integer;
+function SL_FindSandwichBoxNumber: Integer;
 var
-  tmpCTS, i, SColor, STol, MinSSize: integer;
-  tmpHM, tmpSM, SHM, SSM: extended;
-  SName: string;
-  SB: tbox;
-  SWTPA: tpointarray;
+  tmpCTS, i, SColor, STol, MinSSize: Integer;
+  tmpHM, tmpSM, SHM, SSM: Extended;
+  SName: String;
+  SB: TBox;
+  SWTPA: TPointArray;
 begin
   Result := -1;
 
@@ -136,53 +227,51 @@ begin
 
   case Lowercase(SName) of
     'baguette'         : begin
-                           SColor:=2910074;
-                           STol:=10;
+                           SColor:=2712694;
+                           STol:=11;
                            SHM:=0.03;
-                           SSM:=0.08;
-                           MinSSize:=35;
+                           SSM:=0.19;
+                           MinSSize:=30;
                          end;
     'chocolate bar'    : begin
-                           SColor:=2375783;
-                           STol:=7;
-                           SHM:=0.03;
-                           SSM:=0.24;
-                           MinSSize:=120;
+                           SColor:=2111836;
+                           STol:=10;
+                           SHM:=0.05;
+                           SSM:=0.22;
+                           MinSSize:=75;
                          end;
     'kebab'            : begin
-                           SColor:=1276942;
-                           STol:=3;
-                           SHM:=0.08;
-                           SSM:=0.59;
-                           MinSSize:=25;
+                           SColor:=609881;
+                           STol:=2;
+                           SHM:=0.06;
+                           SSM:=0.71;
+                           MinSSize:=15;
                          end;
     'pie'              : begin
                            SColor:=5395289;
                            STol:=24;
                            SHM:=0.10;
                            SSM:=0.08;
-                           MinSSize:=150;
+                           MinSSize:=70;
                          end;
     'bread roll'       : begin
                            SColor:=1280167;
                            STol:=9;
-                           SHM:=0.01;
+                           SHM:=0.02;
                            SSM:=0.24;
-                           MinSSize:=110;
+                           MinSSize:=75;
                          end;
     'triangle sandwich': begin
-                           SColor:=2276602;
-                           STol:=2;
-                           SHM:=0.05;
-                           SSM:=0.81;
-                           MinSSize:=25;
+                           Result := SL_FindSandwichBySize(False);
+                           SetColorToleranceSpeed(tmpCTS);
+                           SetToleranceSpeed2Modifiers(tmpHM, tmpSM);
+                           Exit;
                          end;
     'square sandwich'  : begin
-                           SColor:=5143435;
-                           STol:=6;
-                           SHM:=0.01;
-                           SSM:=0.05;
-                           MinSSize:=110;
+                           Result := SL_FindSandwichBySize(True);
+                           SetColorToleranceSpeed(tmpCTS);
+                           SetToleranceSpeed2Modifiers(tmpHM, tmpSM);
+                           Exit;
                          end;
     else
     begin SL_Message('[ERROR] Invalid sandwich name found'); Exit; end;
@@ -198,7 +287,13 @@ begin
     begin
       SB := SL_SandwichSearchBox(i);
       FindColorsTolerance(SWTPA, SColor, SB.X1, SB.Y1, SB.X2, SB.Y2, STol);
-      if (Length(SWTPA) < MinSSize) then Continue;
+
+      if (Length(SWTPA) < MinSSize) then
+        Continue;
+
+      if (_SL_Debug) then
+        SL_Message('Sandwich located at ' + IntToStr(i) +
+                   ': ' + IntToStr(Length(SWTPA)));
       Result := i;
       Break;
     end;
@@ -232,20 +327,28 @@ begin
     Exit;
   end;
 
+  //if (_SL_Debug) then
+    //takeScreen('Sandwich Random ' + SL_GetSandwichName);
+
   repeat
 
     if SL_Select(SL_FindSandwichBoxNumber) then
     begin
-      SL_Message('Selected sandwich');
       Result := True;
+      SL_Message('Selected sandwich')
     end;
 
-  until (Result) or (SL_StopSearch);
+    Wait(RandomRange(1100, 1800));
+
+  until (CountColor(39423, 490, 10, 513, 32) < 5) or (SL_StopSearch);
 
   if ((GetSystemTime - _SL_TimeOut) > 35000) then
-    SL_Message('[ERROR] SandwichLady solver timed out');
+    SL_Message('[ERROR] SandwichLady solver timed out')
+  else
+    SL_Message('[SOLVED]');
+
+  ClickContinue(False);
 
   Wait(RandomRange(1600, 1900));
 
-  ClickContinue(False);
 end;
